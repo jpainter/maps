@@ -22,8 +22,31 @@ w[63,1] = "USA"
 x = map(plot=FALSE)  # map created bu not printed
 x$measure = array(NA, dim=length(x$names))  
 
+for ( i in 1:length(w$country) ) {
+  for ( j in 1:length(x$names) ) {
+    if (grepl(w$country[i], x$names[j], ignore.case=T))
+      x$measure[j] = w[i,3]
+  }
+}
+
+sd = data.frame(col=colors,
+                values =  seq(min(x$measure[!is.na(x$measure)]), 
+                              max(x$measure[!is.na(x$measure)])) * 1.0001,
+                              length.out=7)
 
 
+sc = array("#FFFFFF", dim = length(x$names))
+
+for (i in 1:length(x$measure))
+  if (!is.na(x$measure[i]))
+    sc[i] = as.character(sd$col[findInterval(x$measure[i],
+                                                       sd$values)])
+
+# 2-column layout with color scale to the right of the map
+layout(matrix( data=c(2,1), nrow=1, ncol=2), widths=c(8,1), heights=c(8,1))
+
+# color scale
+breaks = sd$values
 @
 
 
