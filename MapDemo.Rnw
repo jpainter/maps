@@ -1,0 +1,102 @@
+\documentclass{article}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+\section{basic example}
+The code for this state map is from CivilStat website (http://www.r-bloggers.com/commandeering-a-map-from-pdf-or-eps-using-inkscape-and-r/), based on python code for a country level choropleth on Nathan Yau's 'Visualize This' blog (http://flowingdata.com/2009/11/12/how-to-make-a-us-county-thematic-map-using-free-tools/).
+
+<<'demo state map', eval=TRUE>>=
+source("choropleth function.r")
+
+# map poverty data to 10 levels
+povdata <- read.csv("poverty/statepovdata.csv",stringsAsFactors=F)
+names(povdata) <- c("State.Abb", "FIPS", "Povrate", "CI.lo","CI.hi") # FIPS required
+varToChart= "Povrate"
+map = choropleth(data = povdata, variable= varToChart, numcolors=5)
+
+# convert to pdf via inkspace (open source software)
+cmd = paste("inkscape -f ", getwd(),"/", map[1], " -A ", getwd(), "/", varToChart, ".pdf", sep="")
+system(cmd)
+@
+
+\includegraphics[width=1\textwidth]{\Sexpr{paste(varToChart,".pdf",sep="")}}
+% \includegraphics[width=1\textwidth]{\Sexpr{paste(map[1],".pdf",sep="")}}
+
+To create this map, and ones similar, we created a choropleth function:
+% \newline
+
+\section{Refugee Arrivals by State}
+<<'arrival state map', eval=TRUE>>=
+source("choropleth function.r")
+
+# map state arival data 
+# Load spreadsheet
+library(XLConnect)
+wb <- loadWorkbook("c:/users/bzp3/desktop/dna/DNA arrivals.xlsx")
+refugees <- readWorksheet(wb, sheet = "refugee_states", startRow=4, startCol=1, header = TRUE)
+refugee.tab = as.data.frame(xtabs(refugees$Calendar.2012 ~ refugees$State))
+
+FIPS <- readWorksheet(wb, sheet = "FIPS", startRow=1, startCol=1, header = TRUE)
+names(FIPS) = c("State", "State.Abrev", "FIPS", "Status")
+refugee.fips = merge(x=FIPS, y=refugee.tab, by.x="State", by.y="refugees.State")
+
+varToChart= "Freq"
+map = choropleth(data = refugee.fips, variable= varToChart, numcolors=10)
+
+# tool tips -- brushable info with SVGAnnotation package.  Mac only?
+# addToolTips(doc, rownames(quakes[depth.ord, ]))
+
+#legend?
+intervals = map[2]
+colors = map[3]
+print(intervals)
+print(colors)
+
+# convert to pdf via inkspace (open source software)
+cmd = paste("inkscape -f ", getwd(),"/", map[1], " -A ", getwd(), "/", varToChart, ".pdf", sep="")
+system(cmd)
+
+@
+
+
+\includegraphics[width=1\textwidth]{\Sexpr{paste(varToChart,".pdf",sep="")}}
+
+<<'arrival county map', eval=TRUE>>=
+# source("choropleth function.r")
+# 
+# # map state arival data 
+# # Load spreadsheet
+# library(XLConnect)
+# wb <- loadWorkbook("c:/users/bzp3/desktop/dna/DNA arrivals.xlsx")
+# refugees <- readWorksheet(wb, sheet = "refugee_states", startRow=4, startCol=1, header = TRUE)
+# refugee.tab = as.data.frame(xtabs(refugees$Calendar.2012 ~ refugees$State))
+# 
+# FIPS <- readWorksheet(wb, sheet = "FIPScounty", startRow=1, startCol=1, header = TRUE)
+# names(FIPS) = c("State", "County", "FIPS.State", "FIPS.County")
+# FIPS$id = paste(FIPS$State, FIPS$FIPS.County, sep="")
+# refugee.fips = merge(x=FIPS, y=refugee.tab, by.x=c("FIPS.State","FIPS.County"), 
+#                                                   by.y=c("State","County")
+# 
+# varToChart= "Freq"
+# map = choropleth(data = refugee.fips, 
+#                  variable= varToChart, 
+#                  numcolors=10,
+#                  map = "USA_Counties_with_FIPS_and_names.svg")
+# 
+# #legend?
+# intervals = map[2]
+# colors = map[3]
+# print(intervals)
+# print(colors)
+# 
+# # convert to pdf via inkspace (open source software)
+# cmd = paste("inkscape -f ", getwd(),"/", map[1], " -A ", getwd(), "/", varToChart, ".pdf", sep="")
+# system(cmd)
+
+@
+
+% \includegraphics[width=1\textwidth]{\Sexpr{paste(varToChart,".pdf",sep="")}}
+
+
+\end{document}

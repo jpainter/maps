@@ -1,0 +1,32 @@
+\documentclass{article}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+Creating maps, based greatly on "R Graphs Cookbook," Hrishi V. Mittal, Packt Publishing, Birmingham - Mumbai.  www.PacktPub.com
+
+Install and load map related packages
+<<"packages">>=
+library(maps)  # country and world maps
+library(RColorBrewer) # for defining color shcemes
+library(mapproj) # map projections
+@
+
+
+Plot a map of CO2 emissions according to World Bank data (from the WDI package).
+<<"WorldBank">>=
+library(WDI)
+wgdp = WDIsearch("gdp") # list of world bank indicators
+w = WDI(country="all", indicator=wgdp[27,1], start=2005, end=2005)  # indicator 27 is CO2 emissions per gdp
+w[63,1] = "USA"
+x = map(plot=FALSE)  # map created bu not printed
+x$measure = array(NA, dim=length(x$names))  
+
+
+
+@
+
+
+
+
+\end{document}
